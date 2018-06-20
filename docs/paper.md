@@ -42,7 +42,6 @@ The switch maintains series of *interfaces* which are point-to-point links to ot
 
 Assume there are three switches: Switch 1, Switch 2, and Switch 3. The interfaces that each switch has are shown in the tables below:
 
-<center>
 Switch 1 Interfaces | Director
 --- | ---
 Self | 0001
@@ -58,27 +57,26 @@ Switch 3 Interfaces | Director
 --- | ---
 Self | 01
 Switch 3 -> Switch 2 | 11
-</center>
 
 If Switch 1 wants to send a packet to Switch 3 via Switch 2 it would set up the following route label:
 
-Route Label: 0000000000000000 01 110100 1011
+**0000000000000000 01 110100 1011**
 
 The segments from left to right are: empty space, Switch 3's self director, Switch 2's "Switch 2 -> Switch 3" director, and Switch 1's "Switch 1 -> Switch 2" director. The spaces are only shown for the clarity of this example, the actual bit sequence used is purposefully opaque. Without knowing all of the directors, there is very little information you can derive about how the packet will be routed.
 
 The above route label is attached to a packet which is then sent to Switch 1. Switch 1 matches the four rightmost bits to its "Switch 1 -> Switch 2" interface and shifts them off of the route label:
 
-Route Label: 000000000000 01 110100
+**000000000000 01 110100**
 
 Switch 1 also adds a reversed director to get back, in this case to self, to the left-hand side of the route label. Note that shifting off the director that was matched provides this space:
 
-Route Label: 1000 000000000000 01 110100
+**1000 000000000000 01 110100**
 
 Finally, Switch 1 uses its "Switch 1 -> Switch 2" interface to send this packet, with its carefully crafted route label, to Switch 2.
 
-Switch 2 matches the six rightmost bits as a director to use interface "Switch 2 -> Switch 3". It shifts those bits off and adds a reversed director to get back, in this case "Switch 2 -> Switch 1", to the left-hand side of the route label.
+Switch 2 matches the six rightmost bits as a director to use interface "Switch 2 -> Switch 3". It shifts those bits off and adds a reversed director to get back, in this case "Switch 2 -> Switch 1", to the left-hand side of the route label:
 
-Route Label: 000011 1000 000000000000 01
+**000011 1000 000000000000 01**
 
 Finally, Switch 2 uses its "Switch 2 -> Switch 3" interface to send this packet to Switch 3.
 
