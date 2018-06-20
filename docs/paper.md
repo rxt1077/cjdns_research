@@ -7,9 +7,9 @@ cjdns is a mesh networking protocol built on-top of existing protocols. Its prim
 * Provide end-to-end encryption
 * Limit the size of routing tables
 * Make denial of service atacks much more difficult
-* Simplify the configuration networks
+* Simplify the configuration of networks
 
-By utilizing already existing network structures, cjdns has a better chance of gaining widespread adoption than several of its competitors. It is also worth noting that cjdns has been used to successfully build large-scale, currently operating networks such as Hyperboria.
+By utilizing already existing network structures, cjdns has a better chance of gaining widespread adoption than several of its competitors. It is also worth noting that cjdns has been used to successfully build large-scale, currently operating networks such as [Hyperboria](https://hyperboria.net/).
 
 The stack for a typical implementation of cjdns looks like this:
 
@@ -22,18 +22,42 @@ The stack for a typical implementation of cjdns looks like this:
 
 ## What prompted the creation of cjdns?
 
-As the internet evolved from its humble beginnings as a research project, an emphasis was placed on backwards compatibility as a means of getting and keeping adopters. This often meant that older, insecure protocols continued to be used. Protocols are now built on top of IP, fully expecting that their information will be transmitted in plaintext unless they take the intitiative and add an encryption layer themselves. [Secure Shell](https://tools.ietf.org/html/rfc4253), [Transport Layer Security](https://tools.ietf.org/html/rfc5246), and [Simple Mail Transport Protocol Secure](https://www.ietf.org/rfc/rfc3207.txt) are all examples of this. To further complicate things, if one of those protocols is found to be insecure it requires a change to all of the individual protocols. The solution is not particularly modular. Likewise even protocls that attempt to be modular, such as TLS from the examples, are not adopted by all other protocols. If you push out a fix for TLS, SMTPS and HTTPS may now be more secure, but SSH may still be exploitable.
+As the internet evolved from its humble beginnings as a research project, an emphasis was placed on backwards compatibility as a means of getting and keeping adopters. This often meant that older, insecure protocols continued to be used. Protocols are now built on top of IP, fully expecting that their information will be transmitted in plaintext unless they take the intitiative and add an encryption layer themselves. [Secure Shell](https://tools.ietf.org/html/rfc4253), [Transport Layer Security](https://tools.ietf.org/html/rfc5246), and [Simple Mail Transport Protocol Secure](https://www.ietf.org/rfc/rfc3207.txt) are all examples of this. To further complicate things, if one of those protocols is found to be insecure it requires a change to all of the individual protocols. The solution is not particularly modular. Likewise even protocols that attempt to be modular, such as TLS from the examples, are not adopted by all other protocols. If you push out a fix for TLS, SMTPS and HTTPS may now be more secure, but SSH may still be exploitable.
 
-The solution proposed by cjdns is to move encryption further down the stack. This way if it needs to change, you change cjdns and the protocols above it remain secure. With cjdns sitting just above IPv6, and encryption layer is provided for all traffic.
+The solution proposed by cjdns is to move encryption further down the stack. If the encyrption is found to be insecure and needs to change, a change to cjdns will secure all of the protocols above it. With cjdns sitting just above IPv6 an encryption layer is provided for all traffic above it.
 
 Another challenge the classical internet faces is its ability to scale as more and more devices are connected. Routers are facing ever growing routing tables and clients have run out of IPv4 address. While updates to [BGP](https://tools.ietf.org/html/rfc4271) and the almost universal usage of [NAT](https://tools.ietf.org/html/rfc1631) by clients helps, they don't address the underlying issue. Likewise in a future where IoT marketers have promised us shoes with IP addresses, the standard way of doing things may not be up to the task.
 
-cjdns addresses these problems by utilizing IPv6 and sharing the burden of maintaining a routing table through a distributed hash table. IPv6 provides significantly more addresses (one for every grain of sand on earth) and is supported by most hardware. DHTs have proven to be a viable distributed data structure for maintaining large amounts of constantly changing information amongst peers.
+cjdns addresses these problems by utilizing IPv6 and sharing the burden of maintaining a routing table through a distributed hash table. IPv6 provides significantly more addresses (one for every grain of sand on earth) and is largely supported by currently deployed hardware. DHTs have proven to be a viable for addressing groups of peers and maintaining large amounts of constantly changing information.
 
-## Why use IPv6?
+## How does cjdns work?
 
-## Routing in cjdns
+cjdns breaks down in to three main components: *switch*, *router*, and *CryptoAuth*
 
-## How does cjdns utilize cryptography?
+### switch
 
-##What are some current challenges cjdns faces? 
+The switch maintains series of *interfaces* which are point-to-point links to other switches. Packets contain a *route label*, which is an ordered set of *directors* which tell the switch where to send packets. cjdns includes other fields in the packet including *encoding scheme*, *encoding form*, and *director prefix*, largely to support future changes to how the data in the packet is represented.
+
+#### Example
+
+Assume there are three switches: Switch 1, Switch 2, and Switch 3. The interfaces that each switch knows about are shown in the tables below:
+
+Switch 1 Interfaces | Director
+--- | ---
+Self | 0001
+Switch 1 -> Switch 2 | 1011
+
+Switch 2 Interfaces | Director
+--- | ---
+Self | 000001
+Switch 2 -> Switch 1 | 110000
+Switch 2 -> Switch 3 | 110100
+
+Switch 3 Interfaces | Director
+--- | ---
+Self | 01
+Switch 3 -> Switch 2 | 11
+
+## A practical example
+
+## What are some current challenges cjdns faces? 
